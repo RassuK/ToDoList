@@ -37,6 +37,38 @@ class DBHandler(val context: Context) : SQLiteOpenHelper(context, DB_NAME, null,
         return result != (-1).toLong()
     }
 
+    fun updateToDo(toDo: ToDo) {
+        val db = writableDatabase
+        val cv = ContentValues()
+        cv.put(COL_NAME, toDo.name)
+        db.update(TABLE_TODO,cv,"$COL_ID=?" , arrayOf(toDo.id
+            .toString()))
+    }
+
+    fun deleteToDo(todoId: Long){
+        val db = writableDatabase
+        db.delete(TABLE_TODO_ITEM,"$COL_TODO_ID=?", arrayOf(todoId.toString()))
+        db.delete(TABLE_TODO,"$COL_ID=?", arrayOf(todoId.toString()))
+    }
+
+    fun updateToDoItemCompletedStatus(todoId: Long,isCompleted: Boolean){
+        val db = writableDatabase
+        val queryResult = db.rawQuery("SELECT * FROM $TABLE_TODO_ITEM WHERE $COL_TODO_ID=$todoId", null)
+
+        if (queryResult.moveToFirst()) {
+            do {
+                val item = ToDoItem()
+                item.id = queryResult.getLong(queryResult.getColumnIndex(COL_ID))
+                item.toDoId = queryResult.getLong(queryResult.getColumnIndex(COL_TODO_ID))
+                item.itemName = queryResult.getString(queryResult.getColumnIndex(COL_ITEM_NAME))
+                item.isCompleted = isCompleted
+                updateToDoItem(item)
+            } while (queryResult.moveToNext())
+        }
+
+        queryResult.close()
+    }
+
     fun getToDos(): MutableList<ToDo> {
         val result: MutableList<ToDo> = ArrayList()
         val db = readableDatabase
@@ -58,10 +90,7 @@ class DBHandler(val context: Context) : SQLiteOpenHelper(context, DB_NAME, null,
         val cv = ContentValues()
         cv.put(COL_ITEM_NAME, item.itemName)
         cv.put(COL_TODO_ID, item.toDoId)
-        if (item.isCompleted)
-            cv.put(COL_IS_COLPLETED, true)
-        else
-            cv.put(COL_IS_COLPLETED, false)
+        cv.put(COL_IS_COLPLETED, item.isCompleted)
 
         val result = db.insert(TABLE_TODO_ITEM, null, cv)
         return result != (-1).toLong()
@@ -72,10 +101,7 @@ class DBHandler(val context: Context) : SQLiteOpenHelper(context, DB_NAME, null,
         val cv = ContentValues()
         cv.put(COL_ITEM_NAME, item.itemName)
         cv.put(COL_TODO_ID, item.toDoId)
-        if (item.isCompleted)
-            cv.put(COL_IS_COLPLETED, true)
-        else
-            cv.put(COL_IS_COLPLETED, false)
+        cv.put(COL_IS_COLPLETED, item.isCompleted)
 
         db.update(TABLE_TODO_ITEM, cv, "$COL_ID=?", arrayOf(item.id.toString()))
     }
@@ -93,7 +119,6 @@ class DBHandler(val context: Context) : SQLiteOpenHelper(context, DB_NAME, null,
                 item.toDoId = queryResult.getLong(queryResult.getColumnIndex(COL_TODO_ID))
                 item.itemName = queryResult.getString(queryResult.getColumnIndex(COL_ITEM_NAME))
                 item.isCompleted = queryResult.getInt(queryResult.getColumnIndex(COL_IS_COLPLETED)) == 1
-                item.toDoId = todoId
                 result.add(item)
             } while (queryResult.moveToNext())
         }
