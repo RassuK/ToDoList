@@ -5,6 +5,8 @@
           android:title="@string/edit"/>
     <item android:id="@+id/menu_delete"
           android:title="@string/delete"/>
+    <item android:id="@+id/menu_delete_children"
+          android:title="@string/delete_children"/>
     <item android:id="@+id/menu_mark_as_completed"
           android:title="@string/mark_as_completed"/>
     <item android:id="@+id/menu_reset"

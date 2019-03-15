@@ -51,6 +51,11 @@ class DBHandler(val context: Context) : SQLiteOpenHelper(context, DB_NAME, null,
         db.delete(TABLE_TODO,"$COL_ID=?", arrayOf(todoId.toString()))
     }
 
+    fun deleteToDoChildren(todoId: Long){
+        val db = writableDatabase
+        db.delete(TABLE_TODO_ITEM,"$COL_TODO_ID=?", arrayOf(todoId.toString()))
+    }
+
     fun updateToDoItemCompletedStatus(todoId: Long,isCompleted: Boolean){
         val db = writableDatabase
         val queryResult = db.rawQuery("SELECT * FROM $TABLE_TODO_ITEM WHERE $COL_TODO_ID=$todoId", null)

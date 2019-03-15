@@ -116,6 +116,10 @@ class DashboardActivity : AppCompatActivity() {
                             activity.dbHandler.deleteToDo(list[p1].id)
                             activity.refreshList()
                         }
+                        R.id.menu_delete_children->{
+                            activity.dbHandler.deleteToDoChildren(list[p1].id)
+                            activity.refreshList()
+                        }
                         R.id.menu_mark_as_completed->{
                             activity.dbHandler.updateToDoItemCompletedStatus(list[p1].id,true)
                         }
